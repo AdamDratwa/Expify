@@ -2,7 +2,7 @@
 
 Expify is a personal spending tracker built around receipts. You photograph a receipt, AI reads the store, date, items, categories and total, you check and correct the result, and the saved receipt shows up in a monthly breakdown of spending by category. You can set a monthly limit per category, and the app warns you when a category goes over it.
 
-> **Status:** early development. The repository holds the scaffolded API and frontend; the features below are planned for the MVP and are not built yet.
+> **Status:** early development. The repository holds the scaffolded API and frontend, deployed at <https://expify-adr.azurewebsites.net>. The features below are planned for the MVP and are not built yet.
 
 ## MVP features
 
@@ -21,8 +21,8 @@ Out of scope for the MVP: natural-language questions about spending, email or pu
 | --- | --- | --- |
 | Backend API | ASP.NET Core Web API, .NET 9 | [src/Expify.Api](src/Expify.Api) |
 | Frontend | Angular 22, SCSS, Vitest | [src/Expify.Web](src/Expify.Web) |
-| Hosting (planned) | Azure App Service | |
-| CI/CD (planned) | GitHub Actions, deploy on merge to `master` | |
+| Hosting | Azure App Service (Linux B1, Poland Central), app `expify-adr` | <https://expify-adr.azurewebsites.net> |
+| CI/CD | GitHub Actions, deploy on push to `master` | [.github/workflows/deploy.yml](.github/workflows/deploy.yml) |
 
 The reasoning behind these choices is in [context/foundation/tech-stack.md](context/foundation/tech-stack.md).
 
@@ -77,9 +77,35 @@ Open `http://localhost:4200`. The dev server forwards requests under `/api` to t
 
 The API has no test project yet.
 
+## Deploy
+
+Every push to `master` runs [deploy.yml](.github/workflows/deploy.yml):
+
+1. **build:** frontend tests and build, copy the SPA into `src/Expify.Api/wwwroot/`, `dotnet publish`, and upload the `publish/` folder as the artifact `app-<sha>` (kept 90 days).
+2. **deploy:** sign in to Azure with OIDC (no stored password), deploy the artifact to `expify-adr`, then smoke-test `/api/health`.
+
+Pull requests to `master` run only the build job. The workflow can also be started by hand from the Actions tab.
+
+GitHub settings the workflow needs (Settings → Secrets and variables → Actions):
+
+- Secrets: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`
+- Variable: `AZURE_WEBAPP_NAME` = `expify-adr`
+
+**Rollback:** in the Actions tab, open the last good run and choose "Re-run all jobs". If that run's code no longer builds, download its `app-<sha>` artifact, zip the contents, and run:
+
+```powershell
+az webapp deploy -g rg-expify -n expify-adr --src-path app.zip --type zip
+```
+
+**Logs:** `az webapp log tail -g rg-expify -n expify-adr`
+
+Full deploy history and setup steps are in [context/deployment/deploy-plan.md](context/deployment/deploy-plan.md).
+
 ## Project documents
 
 - [Product requirements](context/foundation/prd.md)
 - [Tech stack decision](context/foundation/tech-stack.md)
+- [Infrastructure decision](context/foundation/infrastructure.md)
+- [Deploy plan and log](context/deployment/deploy-plan.md)
 - [Shaping notes](context/foundation/shape-notes.md)
 - [Bootstrap verification log](context/changes/bootstrap-verification/verification.md)

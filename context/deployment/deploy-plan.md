@@ -12,7 +12,7 @@ Decisions made with the user:
 
 Each phase has checkboxes. Mark [x] as it completes.
 
-**Status (2026-11-04, update 2):** Phases 1 and 2 done. `az` is signed in (subscription "Azure subscription 1"). `gh` is dropped from the plan; GitHub steps are manual in the web UI. Web app `expify-adr` (`https://expify-adr.azurewebsites.net`) exists with the planned settings but still serves the default App Service page, so Phase 3 is next. `app.zip` is built and checked. Phase 4 Azure side done and verified. Waiting on the user for the Phase 3 deploy command and the GitHub secrets/variable.
+**Status (2026-11-04, update 2):** Phases 1 and 2 done. `az` is signed in (subscription "Azure subscription 1"). `gh` is dropped from the plan; GitHub steps are manual in the web UI. Web app `expify-adr` (`https://expify-adr.azurewebsites.net`) exists with the planned settings but still serves the default App Service page, so Phase 3 is next. `app.zip` is built and checked. **Update 3:** first deploy is live at `https://expify-adr.azurewebsites.net` through CI (commit `cb1d939`). Phase 3 was skipped. Phases 4, 5 and 6 are done, and the end-to-end checks pass. Open items: commit and push these docs, delete the unused `gh-master` credential, and start the .NET 10 upgrade before 2026-11-10.
 
 ---
 
@@ -72,9 +72,9 @@ az webapp log config -g rg-expify -n <app> --docker-container-logging filesystem
 ## Phase 3: First manual deploy (USER runs, AGENT prepares the zip)
 
 - [x] AGENT: build the frontend, copy it into `wwwroot`, then run `dotnet publish src/Expify.Api -c Release -o publish` and `Compress-Archive -Path publish/* -DestinationPath app.zip -Force`. This needs PowerShell 7, whose zip entries use forward slashes, which Linux needs.
-- [ ] USER: `az webapp deploy -g rg-expify -n expify-adr --src-path app.zip --type zip`
-- [ ] Verify: `https://<app>.azurewebsites.net/api/health` returns `{"status":"ok"}`, `/` shows the Angular placeholder, and a deep link returns `index.html`.
-- [ ] **Edge case:** if the site shows the default App Service page or a 500, run `az webapp log tail -g rg-expify -n <app>`. Check that the startup command is empty (App Service auto-detects `Expify.Api.dll`). If it isn't detected, run `az webapp config set --startup-file "dotnet Expify.Api.dll"`.
+- [-] USER: `az webapp deploy -g rg-expify -n expify-adr --src-path app.zip --type zip`. **Skipped:** the user pushed straight to `master`, and the first successful CI run did the first deploy.
+- [x] Verify: `https://<app>.azurewebsites.net/api/health` returns `{"status":"ok"}`, `/` shows the Angular placeholder, and a deep link returns `index.html`. (Covered by the end-to-end checks after the CI deploy.)
+- [-] **Edge case:** if the site shows the default App Service page or a 500, run `az webapp log tail -g rg-expify -n <app>`. Check that the startup command is empty (App Service auto-detects `Expify.Api.dll`). If it isn't detected, run `az webapp config set --startup-file "dotnet Expify.Api.dll"`.
 
 ## Phase 4: GitHub OIDC (USER, manual)
 
@@ -93,32 +93,35 @@ az ad app federated-credential create --id $app.appId --parameters fic.json; Rem
 "AZURE_SUBSCRIPTION_ID = $(az account show --query id -o tsv)"
 ```
 - [x] Azure side done (app registration, service principal, role assignment, federated credential). (Verified 2026-11-04: one registration `gh-expify-deploy`, appId `1f6879fe-14d3-4a88-b340-7e5f7c86dffc`; service principal exists; `Website Contributor` scoped to `expify-adr` only; federated credential `gh-master` with subject `repo:AdamDratwa/Expify:ref:refs/heads/master`; 0 client secrets.)
-- [ ] **GitHub side, by hand in the web UI:** open `https://github.com/AdamDratwa/Expify/settings/secrets/actions`.
+- [x] **Subject format fix (2026-11-04).** The first CI run failed at `azure/login` with `AADSTS700213`. GitHub sends a subject with numeric owner and repo IDs: `repo:AdamDratwa@22412061/Expify@1444649362:ref:refs/heads/master`. The user added a second federated credential, `gh-master-ids`, with exactly that subject, and the re-run passed. **Any future federated credential for this repo must use the `owner@22412061/repo@1444649362` form.** The old `gh-master` credential matches nothing and can be deleted with `az ad app federated-credential delete --id 1f6879fe-14d3-4a88-b340-7e5f7c86dffc --federated-credential-id gh-master`.
+- [x] **GitHub side, by hand in the web UI:** open `https://github.com/AdamDratwa/Expify/settings/secrets/actions`.
   - **Secrets** tab → "New repository secret", three times: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, with the values printed above.
   - **Variables** tab → "New repository variable": `AZURE_WEBAPP_NAME` = `expify-adr`.
   - Use repository-level secrets, not environment secrets (the workflow has no `environment:` key).
-- [ ] Check: the Secrets tab lists the three names and the Variables tab lists `AZURE_WEBAPP_NAME`. Names are case-sensitive and must match `deploy.yml` exactly.
+- [x] Check: the Secrets tab lists the three names and the Variables tab lists `AZURE_WEBAPP_NAME`. Names are case-sensitive and must match `deploy.yml` exactly.
 - [ ] **Edge case:** `workflow_dispatch` runs on `master` match the same subject. Runs from other branches fail `azure/login` by design.
 - [ ] **Edge case:** if `azure/webapps-deploy` returns 403, the role assignment may not have propagated yet. Wait 5 minutes and re-run.
 
 ## Phase 5: CI deploy (AGENT commits locally, USER pushes and watches)
 
-- [ ] AGENT commits Phase 1 changes locally on `master`, with the user's approval. There is no PR flow yet because the history is a single commit. The agent does not push.
-- [ ] USER: `git push origin master`.
-- [ ] USER verifies in the web UI: `https://github.com/AdamDratwa/Expify/actions` → the "deploy" run for the pushed commit → both `build` and `deploy` jobs green, including the smoke-test step. If a job fails, open it and expand the failed step; paste the log to the agent if needed.
-- [ ] AGENT re-runs the end-to-end checks below with `curl`/`az` (read-only).
+- [x] Phase 1 changes committed on `master` as `cb1d939 first deploy`. The user made the commit.
+- [x] USER: `git push origin master`.
+- [x] USER verifies in the web UI: `https://github.com/AdamDratwa/Expify/actions` → the "deploy" run for the pushed commit → both `build` and `deploy` jobs green, including the smoke-test step. (The first attempt failed at `azure/login`; see the subject format fix in Phase 4. The re-run was green.)
+- [x] AGENT re-runs the end-to-end checks below with `curl`/`az` (read-only). (2026-11-04: checks 1–6 pass.)
 - [ ] Rollback drill (document only, both by hand):
   - Web UI: Actions → the last good run → "Re-run all jobs".
   - Or: open the last good run → Artifacts → download `app-<sha>`, unzip, re-zip the contents with `Compress-Archive -Path publish/* -DestinationPath app.zip -Force`, and run `az webapp deploy -g rg-expify -n expify-adr --src-path app.zip --type zip`.
 
 ## Phase 6: Record and documentation (AGENT)
 
-- [ ] Write this plan, with checkbox states, app name and URL, to `context/deployment/deploy-plan.md`. That is the path `CLAUDE.md` names as the downstream ground truth.
-- [ ] `README.md`: change Hosting and CI/CD from "(planned)" to live, add the URL, and add a short "Deploy" section covering the workflow, rollback (via the Actions web UI, not `gh`) and `az webapp log tail`.
-- [ ] `AGENTS.md`: note that `src/Expify.Api/wwwroot/` is generated by CI and must not be committed.
+- [x] Write this plan, with checkbox states, app name (`expify-adr`) and URL (`https://expify-adr.azurewebsites.net`), to `context/deployment/deploy-plan.md`. That is the path `CLAUDE.md` names as the downstream ground truth.
+- [x] `README.md`: change Hosting and CI/CD from "(planned)" to live, add the URL, and add a short "Deploy" section covering the workflow, rollback (via the Actions web UI, not `gh`) and `az webapp log tail`.
+- [x] `AGENTS.md`: note that `src/Expify.Api/wwwroot/` is generated by CI and must not be committed. (Also added: pushing to `master` deploys and is user-only; no `environment:` key; the ID-based OIDC subject.)
 - [ ] Follow-up, not done here: open the change "Upgrade to .NET 10" (global.json, csproj, AGENTS.md hard rule, tech-stack.md, `--runtime DOTNETCORE:10.0`).
 
 ## Verification (end to end)
+
+Result on 2026-11-04 after the CI deploy of `cb1d939`: 1 → 200 `{"status":"ok"}`; 2 → 200, title `ExpifyWeb`, has `<app-root>`; 3 → 200 `index.html`; 4 → 404; 5 → 301 to `https://expify-adr.azurewebsites.net/`; 6 → `Running`, Always On, HTTPS only; 7 → green per the user.
 
 1. `curl -i https://<app>.azurewebsites.net/api/health` returns 200 JSON.
 2. `curl -i https://<app>.azurewebsites.net/` returns 200 HTML with the Angular `<app-root>`.

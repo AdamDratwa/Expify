@@ -60,7 +60,8 @@ jobs:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     # No `environment:` key on purpose: it would change the OIDC subject and break
-    # the federated credential bound to repo:AdamDratwa/Expify:ref:refs/heads/master.
+    # the federated credential bound to
+    # repo:AdamDratwa@22412061/Expify@1444649362:ref:refs/heads/master (GitHub sends owner/repo IDs).
     permissions:
       id-token: write
       contents: read

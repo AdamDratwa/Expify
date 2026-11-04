@@ -8,6 +8,9 @@ Expify is a personal spending tracker built around receipts. It has an ASP.NET C
 - Target `net9.0` only. `global.json` pins SDK 9.0.x. An earlier scaffold silently used the machine's SDK 10 and had to be redone.
 - Map every endpoint the frontend calls under `/api/...`. The dev proxy (@src/Expify.Web/proxy.conf.json) forwards only `/api` to `http://localhost:5066` and does not rewrite the path. Sign-in relies on that single origin for cookies.
 - When working on the frontend, run the API with the `http` launch profile. Under `https`, `UseHttpsRedirection` redirects proxied calls to port 7091 and breaks the proxy.
+- Never commit `src/Expify.Api/wwwroot/`. CI generates it from the Angular build, and it is in `.gitignore`.
+- Every push to `master` deploys to production (`https://expify-adr.azurewebsites.net`). Don't push. The user pushes, and does every GitHub web UI action (secrets, re-runs, rollback) by hand; `gh` is not available.
+- Don't add an `environment:` key to the deploy job. It changes the OIDC subject and breaks `azure/login`. The federated credential subject uses numeric IDs: `repo:AdamDratwa@22412061/Expify@1444649362:ref:refs/heads/master`.
 
 ## Project Structure
 
