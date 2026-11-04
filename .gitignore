@@ -185,6 +185,10 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 
+# Expify: Angular build copied into the API at publish time (generated, never committed)
+src/Expify.Api/wwwroot/
+app.zip
+
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml

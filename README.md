@@ -22,7 +22,7 @@ Out of scope for the MVP: natural-language questions about spending, email or pu
 | Backend API | ASP.NET Core Web API, .NET 9 | [src/Expify.Api](src/Expify.Api) |
 | Frontend | Angular 22, SCSS, Vitest | [src/Expify.Web](src/Expify.Web) |
 | Hosting (planned) | Azure App Service | |
-| CI/CD (planned) | GitHub Actions, deploy on merge to `main` | |
+| CI/CD (planned) | GitHub Actions, deploy on merge to `master` | |
 
 The reasoning behind these choices is in [context/foundation/tech-stack.md](context/foundation/tech-stack.md).
 
