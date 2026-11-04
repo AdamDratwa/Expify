@@ -189,6 +189,10 @@ publish/
 src/Expify.Api/wwwroot/
 app.zip
 
+# Expify: extraction spike receipts, ground truth and raw results (private, never committed)
+tools/extraction-spike/receipts/
+tools/extraction-spike/out/
+
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
