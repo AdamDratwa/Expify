@@ -1,5 +1,6 @@
 using Expify.Api.Extraction;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
@@ -54,6 +55,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapPost("/api/dev/receipts/extract", ExtractReceiptAsync)
         .WithName("DevExtractReceipt")
+        // Reject the body while it streams in: 10 MB photo + 64 KB for multipart framing.
+        .WithMetadata(new RequestSizeLimitAttribute(10 * 1024 * 1024 + 64 * 1024))
         .DisableAntiforgery();
 }
 
@@ -90,6 +93,10 @@ static async Task<IResult> ExtractReceiptAsync(
     catch (InvalidDataException ex)
     {
         return Results.Problem($"The form could not be read: {ex.Message}", statusCode: StatusCodes.Status400BadRequest);
+    }
+    catch (BadHttpRequestException ex) when (ex.StatusCode == StatusCodes.Status413PayloadTooLarge)
+    {
+        return Results.Problem("The photo is larger than 10 MB.", statusCode: StatusCodes.Status413PayloadTooLarge);
     }
 
     var photo = form.Files.GetFile("photo");

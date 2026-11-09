@@ -327,15 +327,15 @@ None. Nothing persistent is created, and the endpoint never exists in production
 
 #### Automated
 
-- [x] 1.1 API builds: `dotnet build Expify.sln`
-- [x] 1.2 In Development, `POST /api/dev/receipts/extract?model=claude` without a photo returns 400
-- [x] 1.3 In Development, the endpoint with a photo and `model=unknown` returns 400
-- [x] 1.4 In Production (`ASPNETCORE_ENVIRONMENT=Production`, `dotnet run --project src/Expify.Api --no-launch-profile --urls http://localhost:5066`), the endpoint returns 404 and `/api/health` still returns 200
-- [x] 1.5 `git check-ignore tools/extraction-spike/receipts/a.jpg tools/extraction-spike/out/x.csv` reports both paths ignored
+- [x] 1.1 API builds: `dotnet build Expify.sln` — 03817b6
+- [x] 1.2 In Development, `POST /api/dev/receipts/extract?model=claude` without a photo returns 400 — 03817b6
+- [x] 1.3 In Development, the endpoint with a photo and `model=unknown` returns 400 — 03817b6
+- [x] 1.4 In Production (`ASPNETCORE_ENVIRONMENT=Production`, `dotnet run --project src/Expify.Api --no-launch-profile --urls http://localhost:5066`), the endpoint returns 404 and `/api/health` still returns 200 — 03817b6
+- [x] 1.5 `git check-ignore tools/extraction-spike/receipts/a.jpg tools/extraction-spike/out/x.csv` reports both paths ignored — 03817b6
 
 #### Manual
 
-- [x] 1.6 `appsettings.json` and `appsettings.Development.json` contain no API key
+- [x] 1.6 `appsettings.json` and `appsettings.Development.json` contain no API key — 03817b6
 
 ### Phase 2: OpenRouter adapter
 
