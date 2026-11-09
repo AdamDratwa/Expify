@@ -48,4 +48,42 @@ Run the API in Development with the `http` launch profile:
 dotnet run --project src/Expify.Api
 ```
 
-The replay and scoring script is added in a later phase of the change.
+Keep the `http` profile (the default above, `http://localhost:5066`).
+
+## 4. Running the spike
+
+From the repository root, in a second terminal, with PowerShell 7 on Windows:
+
+```powershell
+pwsh -NoProfile -File tools/extraction-spike/run-spike.ps1 -Prices "claude=5/25,gpt=1.25/10"
+```
+
+- `-Prices` is optional: `alias=input/output`, in USD per 1M input and output tokens, with a dot
+  as the decimal separator, copied from each model's OpenRouter page. Without it, cost shows `n/a`.
+- Other parameters (defaults in brackets): `-ReceiptsDir` (`tools/extraction-spike/receipts`),
+  `-ApiBase` (`http://localhost:5066`), `-Models` (`claude,gpt`), `-ReportPath`
+  (`context/changes/extraction-provider-spike/spike-report.md`), `-OutDir`
+  (`tools/extraction-spike/out`).
+- For a dry run, point `-ReceiptsDir` at a folder with 2 photos and its own `truth.csv`, and
+  `-ReportPath` at a file outside `context/` so the real report is not overwritten.
+
+What the script does:
+
+1. Checks `truth.csv` first and stops, sending nothing, if a photo is missing, not a JPEG, or a
+   total or date has the wrong format.
+2. Applies each photo's EXIF orientation and resizes it to a long edge of at most 2000 px (JPEG
+   quality 85) into `out/resized/`.
+3. Sends one untimed warm-up call per model, then each receipt to each model in turn, with a 60 s
+   timeout. Each send costs OpenRouter credit, warm-up calls included.
+4. Writes `out/results.csv` with every returned value and error (private, git-ignored) and the
+   report at `-ReportPath`. The report holds only counts, PASS/FAIL and per-file marks, never store
+   names, dates or amounts. File names do appear in it, so name photos `receipt-01.jpg` and so on,
+   not after the store.
+
+Check the scoring rules without any photos or API calls:
+
+```powershell
+pwsh -NoProfile -File tools/extraction-spike/run-spike.ps1 -SelfTest
+```
+
+It exits with code 0 when every built-in case passes and 1 otherwise.

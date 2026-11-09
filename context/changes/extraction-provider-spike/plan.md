@@ -341,29 +341,29 @@ None. Nothing persistent is created, and the endpoint never exists in production
 
 #### Automated
 
-- [x] 2.1 API builds: `dotnet build Expify.sln`
-- [x] 2.2 No vulnerable packages: `dotnet list Expify.sln package --vulnerable --include-transitive` reports none
-- [x] 2.3 With the OpenRouter key removed from user secrets, `model=claude` returns 503 and the message names `Extraction:OpenRouter:ApiKey` without printing any key
-- [x] 2.4 The Production-environment check from Phase 1 still returns 404 for the endpoint
+- [x] 2.1 API builds: `dotnet build Expify.sln` — 90b958a
+- [x] 2.2 No vulnerable packages: `dotnet list Expify.sln package --vulnerable --include-transitive` reports none — 90b958a
+- [x] 2.3 With the OpenRouter key removed from user secrets, `model=claude` returns 503 and the message names `Extraction:OpenRouter:ApiKey` without printing any key — 90b958a
+- [x] 2.4 The Production-environment check from Phase 1 still returns 404 for the endpoint — 90b958a
 
 #### Manual
 
-- [x] 2.5 Prerequisite done by the user: an OpenRouter account with credit, prompt logging off and training-allowed providers excluded in its privacy settings; the API key in `dotnet user-secrets`; both model slugs present in `appsettings.Development.json`
-- [x] 2.6 One real receipt sent with `model=claude` returns plausible store, date, items, categories and total, with `servedBy` filled in
-- [x] 2.7 The same receipt with `model=gpt` returns the same shape
+- [x] 2.5 Prerequisite done by the user: an OpenRouter account with credit, prompt logging off and training-allowed providers excluded in its privacy settings; the API key in `dotnet user-secrets`; both model slugs present in `appsettings.Development.json` — 90b958a
+- [x] 2.6 One real receipt sent with `model=claude` returns plausible store, date, items, categories and total, with `servedBy` filled in — 90b958a
+- [x] 2.7 The same receipt with `model=gpt` returns the same shape — 90b958a
 
 ### Phase 3: Replay and scoring script
 
 #### Automated
 
-- [ ] 3.1 `pwsh -NoProfile -File tools/extraction-spike/run-spike.ps1 -SelfTest` exits 0, with fixtures covering: 18/20 exact totals → accuracy PASS; 17/20 → FAIL; 19/20 calls within 10 s → latency PASS; 18/20 → FAIL; `12.30` vs `12.3` → match; `12.31` vs `12.30` → mismatch; an error row → counts against both rules
-- [ ] 3.2 The script refuses to run when `truth.csv` references a missing photo (non-zero exit, message names the file)
+- [x] 3.1 `pwsh -NoProfile -File tools/extraction-spike/run-spike.ps1 -SelfTest` exits 0, with fixtures covering: 18/20 exact totals → accuracy PASS; 17/20 → FAIL; 19/20 calls within 10 s → latency PASS; 18/20 → FAIL; `12.30` vs `12.3` → match; `12.31` vs `12.30` → mismatch; an error row → counts against both rules
+- [x] 3.2 The script refuses to run when `truth.csv` references a missing photo (non-zero exit, message names the file)
 
 #### Manual
 
-- [ ] 3.3 A dry run on 2 receipts produces `out/results.csv` and a report whose numbers match a hand check
-- [ ] 3.4 A photo taken in portrait arrives upright in `out/resized/`
-- [ ] 3.5 The generated report contains no store names or amounts
+- [x] 3.3 A dry run on 2 receipts produces `out/results.csv` and a report whose numbers match a hand check
+- [x] 3.4 A photo taken in portrait arrives upright in `out/resized/`
+- [x] 3.5 The generated report contains no store names or amounts
 
 ### Phase 4: Run, verdict and handoff
 
