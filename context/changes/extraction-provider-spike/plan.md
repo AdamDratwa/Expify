@@ -341,16 +341,16 @@ None. Nothing persistent is created, and the endpoint never exists in production
 
 #### Automated
 
-- [ ] 2.1 API builds: `dotnet build Expify.sln`
-- [ ] 2.2 No vulnerable packages: `dotnet list Expify.sln package --vulnerable --include-transitive` reports none
-- [ ] 2.3 With the OpenRouter key removed from user secrets, `model=claude` returns 503 and the message names `Extraction:OpenRouter:ApiKey` without printing any key
-- [ ] 2.4 The Production-environment check from Phase 1 still returns 404 for the endpoint
+- [x] 2.1 API builds: `dotnet build Expify.sln`
+- [x] 2.2 No vulnerable packages: `dotnet list Expify.sln package --vulnerable --include-transitive` reports none
+- [x] 2.3 With the OpenRouter key removed from user secrets, `model=claude` returns 503 and the message names `Extraction:OpenRouter:ApiKey` without printing any key
+- [x] 2.4 The Production-environment check from Phase 1 still returns 404 for the endpoint
 
 #### Manual
 
-- [ ] 2.5 Prerequisite done by the user: an OpenRouter account with credit, prompt logging off and training-allowed providers excluded in its privacy settings; the API key in `dotnet user-secrets`; both model slugs present in `appsettings.Development.json`
-- [ ] 2.6 One real receipt sent with `model=claude` returns plausible store, date, items, categories and total, with `servedBy` filled in
-- [ ] 2.7 The same receipt with `model=gpt` returns the same shape
+- [x] 2.5 Prerequisite done by the user: an OpenRouter account with credit, prompt logging off and training-allowed providers excluded in its privacy settings; the API key in `dotnet user-secrets`; both model slugs present in `appsettings.Development.json`
+- [x] 2.6 One real receipt sent with `model=claude` returns plausible store, date, items, categories and total, with `servedBy` filled in
+- [x] 2.7 The same receipt with `model=gpt` returns the same shape
 
 ### Phase 3: Replay and scoring script
 

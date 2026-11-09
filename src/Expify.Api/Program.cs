@@ -2,7 +2,6 @@ using Expify.Api.Extraction;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +24,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.Configure<ExtractionOptions>(builder.Configuration.GetSection(ExtractionOptions.SectionName));
+    // Above the replay script's 60 s client timeout, so a slow model reports as a 502 rather than a dropped call.
+    builder.Services.AddHttpClient<IReceiptExtractor, OpenRouterReceiptExtractor>(client =>
+        client.Timeout = TimeSpan.FromSeconds(90));
 }
 
 var app = builder.Build();
@@ -69,8 +71,8 @@ app.MapFallbackToFile("index.html");
 app.Run();
 
 // The form is read by hand (not bound as IFormFile) so a request without a multipart body gets a
-// 400 instead of a 415, and the extractor is resolved at request time because it is registered
-// only once an adapter exists.
+// 400 instead of a 415. The extractor is resolved at request time so the alias and key checks
+// run first and their 400/503 answers do not depend on the adapter.
 static async Task<IResult> ExtractReceiptAsync(
     HttpContext context,
     string? model,
@@ -143,10 +145,9 @@ static async Task<IResult> ExtractReceiptAsync(
     try
     {
         await using var image = photo.OpenReadStream();
-        var stopwatch = Stopwatch.StartNew();
+        // The extractor times only its HTTP call and sets ProviderMs itself.
         var receipt = await extractor.ExtractAsync(model!, image, mediaType, ct);
-        stopwatch.Stop();
-        return Results.Ok(receipt with { ProviderMs = stopwatch.ElapsedMilliseconds });
+        return Results.Ok(receipt);
     }
     catch (ExtractionFailedException ex)
     {
