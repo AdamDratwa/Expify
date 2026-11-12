@@ -356,27 +356,27 @@ None. Nothing persistent is created, and the endpoint never exists in production
 
 #### Automated
 
-- [x] 3.1 `pwsh -NoProfile -File tools/extraction-spike/run-spike.ps1 -SelfTest` exits 0, with fixtures covering: 18/20 exact totals → accuracy PASS; 17/20 → FAIL; 19/20 calls within 10 s → latency PASS; 18/20 → FAIL; `12.30` vs `12.3` → match; `12.31` vs `12.30` → mismatch; an error row → counts against both rules
-- [x] 3.2 The script refuses to run when `truth.csv` references a missing photo (non-zero exit, message names the file)
+- [x] 3.1 `pwsh -NoProfile -File tools/extraction-spike/run-spike.ps1 -SelfTest` exits 0, with fixtures covering: 18/20 exact totals → accuracy PASS; 17/20 → FAIL; 19/20 calls within 10 s → latency PASS; 18/20 → FAIL; `12.30` vs `12.3` → match; `12.31` vs `12.30` → mismatch; an error row → counts against both rules — 0f21e5c
+- [x] 3.2 The script refuses to run when `truth.csv` references a missing photo (non-zero exit, message names the file) — 0f21e5c
 
 #### Manual
 
-- [x] 3.3 A dry run on 2 receipts produces `out/results.csv` and a report whose numbers match a hand check
-- [x] 3.4 A photo taken in portrait arrives upright in `out/resized/`
-- [x] 3.5 The generated report contains no store names or amounts
+- [x] 3.3 A dry run on 2 receipts produces `out/results.csv` and a report whose numbers match a hand check — 0f21e5c
+- [x] 3.4 A photo taken in portrait arrives upright in `out/resized/` — 0f21e5c
+- [x] 3.5 The generated report contains no store names or amounts — 0f21e5c
 
 ### Phase 4: Run, verdict and handoff
 
 #### Automated
 
-- [ ] 4.1 `spike-report.md` exists and has a PASS/FAIL line for both rules for every model run
-- [ ] 4.2 `decision.md` contains the sections Verdict, Results, Rules applied, Privacy terms, Cost per receipt, What S-02 inherits
-- [ ] 4.3 `git status --porcelain` shows no files under `tools/extraction-spike/receipts/` or `tools/extraction-spike/out/`
+- [x] 4.1 `spike-report.md` exists and has a PASS/FAIL line for both rules for every model run
+- [x] 4.2 `decision.md` contains the sections Verdict, Results, Rules applied, Privacy terms, Cost per receipt, What S-02 inherits
+- [x] 4.3 `git status --porcelain` shows no files under `tools/extraction-spike/receipts/` or `tools/extraction-spike/out/`
 
 #### Manual
 
-- [ ] 4.4 The full 20-receipt run completed for both models
-- [ ] 4.5 The verdict follows the agreed rules and tie-break when checked against the report
-- [ ] 4.6 Privacy terms for OpenRouter and the winner's serving backend were checked against their current terms, with the date recorded
-- [ ] 4.7 The OpenRouter settings exist in App Service configuration (`az webapp config appsettings list -g rg-expify -n expify-adr --query [].name` lists the names)
-- [ ] 4.8 `tech-stack.md` names OpenRouter and the model (or the decision says neither passed)
+- [x] 4.4 The full 20-receipt run completed for both models
+- [x] 4.5 The verdict follows the agreed rules and tie-break when checked against the report
+- [x] 4.6 Privacy terms for OpenRouter and the winner's serving backend were checked against their current terms, with the date recorded
+- [x] 4.7 The OpenRouter settings exist in App Service configuration (`az webapp config appsettings list -g rg-expify -n expify-adr --query [].name` lists the names)
+- [x] 4.8 `tech-stack.md` names OpenRouter and the model (or the decision says neither passed)
