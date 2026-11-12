@@ -66,6 +66,10 @@ public sealed class OpenRouterReceiptExtractor(HttpClient http, IOptions<Extract
         {
             throw new ExtractionFailedException($"The OpenRouter call failed: {ex.Message}", ex);
         }
+        catch (Exception ex) when (ex is IOException or InvalidOperationException)
+        {
+            throw new ExtractionFailedException($"The OpenRouter reply could not be read: {ex.Message}", ex);
+        }
 
         if (!response.IsSuccess)
         {
@@ -170,7 +174,16 @@ public sealed class OpenRouterReceiptExtractor(HttpClient http, IOptions<Extract
             throw new ExtractionFailedException("The model returned empty content.");
         }
 
-        var fields = ParseFields(StripCodeFence(content));
+        ExtractedReceipt fields;
+        try
+        {
+            fields = ParseFields(StripCodeFence(content));
+        }
+        catch (JsonException ex)
+        {
+            // The envelope parsed, so this is the model's own output, not OpenRouter's reply.
+            throw new ExtractionFailedException($"The model reply is not valid JSON: {ex.Message}", ex);
+        }
 
         int? inputTokens = null;
         int? outputTokens = null;

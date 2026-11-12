@@ -24,7 +24,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.Configure<ExtractionOptions>(builder.Configuration.GetSection(ExtractionOptions.SectionName));
-    // Above the replay script's 60 s client timeout, so a slow model reports as a 502 rather than a dropped call.
+    // Upper bound for one OpenRouter call; past it the adapter reports a 502. The replay script gives up
+    // at 60 s first, so during the spike a slow call shows up there as a client timeout.
     builder.Services.AddHttpClient<IReceiptExtractor, OpenRouterReceiptExtractor>(client =>
         client.Timeout = TimeSpan.FromSeconds(90));
 }

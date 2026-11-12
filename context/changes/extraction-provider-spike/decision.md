@@ -67,10 +67,11 @@ About **0.012 USD** (≈ 0.05 PLN) with GPT-6.1 Sol at 2 / 10 USD per 1M input /
 
 - **Contract:** `IReceiptExtractor` and `ExtractedReceipt` (`src/Expify.Api/Extraction/ReceiptExtraction.cs`) and `ExtractionFailedException`, which maps to 502.
 - **Prompt and schema:** `src/Expify.Api/Extraction/ExtractionPrompt.cs`. The category list is **provisional**, pending Open Roadmap Question 6. The schema rejects categories outside the list.
-- **Adapter:** `OpenRouterReceiptExtractor`, with the routing filters `data_collection: "deny"` and `require_parameters: true`, a strict JSON-schema `response_format`, and a 90 s client timeout. It is registered only in Development today. S-02 must register it for production, behind sign-in.
+- **Adapter:** `OpenRouterReceiptExtractor`, with the routing filters `data_collection: "deny"` and `require_parameters: true`, a strict JSON-schema `response_format`, and a 90 s HttpClient timeout set where it is registered (`AddHttpClient` in `Program.cs`), not in the class. It is registered only in Development today. S-02 must register it for production, behind sign-in.
 - **Configuration:** `Extraction:OpenRouter:ApiKey` (user secrets locally; the App Service setting `Extraction__OpenRouter__ApiKey` in production) and `Extraction:OpenRouter:Models:gpt` = `openai/gpt-6.1-sol` (`Extraction__OpenRouter__Models__gpt`).
 - **Client-side resize:** before upload, the browser resizes to a long edge of ≤ 2000 px at JPEG quality 85 and applies the EXIF orientation. This keeps input tokens and latency down.
 - **Upload limits:** 10 MB per photo, enforced while streaming (`RequestSizeLimit`), so an oversized upload gets 413 (review finding F4). The dev endpoint is a reference only; S-02's real endpoint must not echo internal error details.
+- **Memory:** the spike adapter holds a photo about four times over: the MemoryStream, the base64 string, `ToJsonString()` and the UTF-8 content. For a 10 MB upload that is roughly 80-100 MB, and the response body has no size cap. Before production on a B1 instance, write the request with `Utf8JsonWriter` (or relaxed escaping, since `JsonNode` escapes `+`) and set `MaxResponseContentBufferSize` to a few MB.
 - **UX:** expect around 15 s per receipt. Show a progress state, and design for a 20 s budget.
 - **Verification path:** `tools/extraction-spike/run-spike.ps1` together with a git-ignored `receipts/` folder and `truth.csv`. It can re-measure latency from production once S-02 exists.
 

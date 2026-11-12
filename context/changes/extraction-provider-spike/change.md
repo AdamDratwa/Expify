@@ -1,7 +1,7 @@
 ---
 change_id: extraction-provider-spike
 title: Choose and prove the AI receipt extraction provider
-status: implemented
+status: impl_reviewed
 created: 2026-11-04
 updated: 2026-11-12
 archived_at: null
