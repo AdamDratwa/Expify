@@ -369,14 +369,14 @@ None. Nothing persistent is created, and the endpoint never exists in production
 
 #### Automated
 
-- [x] 4.1 `spike-report.md` exists and has a PASS/FAIL line for both rules for every model run
-- [x] 4.2 `decision.md` contains the sections Verdict, Results, Rules applied, Privacy terms, Cost per receipt, What S-02 inherits
-- [x] 4.3 `git status --porcelain` shows no files under `tools/extraction-spike/receipts/` or `tools/extraction-spike/out/`
+- [x] 4.1 `spike-report.md` exists and has a PASS/FAIL line for both rules for every model run — 4e60989
+- [x] 4.2 `decision.md` contains the sections Verdict, Results, Rules applied, Privacy terms, Cost per receipt, What S-02 inherits — 4e60989
+- [x] 4.3 `git status --porcelain` shows no files under `tools/extraction-spike/receipts/` or `tools/extraction-spike/out/` — 4e60989
 
 #### Manual
 
-- [x] 4.4 The full 20-receipt run completed for both models
-- [x] 4.5 The verdict follows the agreed rules and tie-break when checked against the report
-- [x] 4.6 Privacy terms for OpenRouter and the winner's serving backend were checked against their current terms, with the date recorded
-- [x] 4.7 The OpenRouter settings exist in App Service configuration (`az webapp config appsettings list -g rg-expify -n expify-adr --query [].name` lists the names)
-- [x] 4.8 `tech-stack.md` names OpenRouter and the model (or the decision says neither passed)
+- [x] 4.4 The full 20-receipt run completed for both models — 4e60989
+- [x] 4.5 The verdict follows the agreed rules and tie-break when checked against the report — 4e60989
+- [x] 4.6 Privacy terms for OpenRouter and the winner's serving backend were checked against their current terms, with the date recorded — 4e60989
+- [x] 4.7 The OpenRouter settings exist in App Service configuration (`az webapp config appsettings list -g rg-expify -n expify-adr --query [].name` lists the names) — 4e60989
+- [x] 4.8 `tech-stack.md` names OpenRouter and the model (or the decision says neither passed) — 4e60989
